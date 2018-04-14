@@ -14,6 +14,15 @@ line = [];
 format = [];
 headerLength = 0;
 IS_NEW = true;
+
+if isunix
+    eol_format = '\r \n';
+else
+    eol_format = '\n';
+end
+    
+
+
 while length(line) < 4 | ~strcmp(line(1:4),'DATA')
    line = fgetl(fid);
    if ~ischar(line)
@@ -82,7 +91,7 @@ elseif isBinary && ~IS_NEW
    data(:) = pts;
    data = data';
 else
-   format = [format '\n'];
+   format = [format eol_format];
    C = textscan(fid,format);
 
    data = cell2mat(C);
