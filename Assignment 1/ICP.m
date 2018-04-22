@@ -12,7 +12,7 @@ function [rotation, translation] = ICP(base, target, nr_iterations, visualize)
         [R, t] = getTransformationParameters(base, matched_target);
         
         % update base
-        base = (R* base)+t;
+        base = (R * base) + t;
         
         % update rotation and translation
         rotation = R * rotation;
