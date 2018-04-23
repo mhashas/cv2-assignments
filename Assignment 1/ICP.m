@@ -1,12 +1,14 @@
-function [rotation, translation] = ICP(base, target, nr_iterations, visualize)
+function [rotation, translation] = ICP(base, target, nr_iterations, visualize, sample_method, aux_sample_method)
     % initialize R and t
     rotation = eye(3);
     translation = zeros(3, 1);
+    
+    for iter = 1:nr_iterations   
         
-    for iter = 1:nr_iterations      
         % find closest points
-        idx = getMatchingPoints(base, target);
-        matched_target = target(:, idx);
+        [mins_distance, mins_idx] = getMatchingPoints(base, target);
+        
+        matched_target = target(:, mins_idx);
         
         % refine R and t using SVD
         [R, t] = getTransformationParameters(base, matched_target);
