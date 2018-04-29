@@ -5,18 +5,14 @@
         if i<10
     %         frames(i+1) = load(sprintf("data_mat1/000000000%d.mat", i));
     %         frames(i+1).points = getPcd(sprintf("Data/data/000000000%d.pcd", i));
-            frames(i+1).points = getPcdMATfile(sprintf("data_mat1/000000000%d.mat", i));
+            frames(i+1).points = getPcdMATfile(sprintf("data_mat1/000000000%d", i));
             %frames(i+1).points = getPcdMATfile(sprintf("data_mat1/000000000%d_normal.mat", i));
-        elseif i < 100
+        else
     %         frames = [frames, load(sprintf("data_mat1/00000000%d.mat", i))];
     %         frames(i+1).points = getPcd(sprintf("Data/data/000000000%d.pcd", i));
-            frames(i+1).points = getPcdMATfile(sprintf("data_mat1/00000000%d.mat", i));
+            frames(i+1).points = getPcdMATfile(sprintf("data_mat1/00000000%d", i));
             %frames(i+1).points = getPcdMATfile(sprintf("data_mat1/00000000%d_normal.mat", i));
-        else % to put the first points at the back of le list of frames.
-            frames(i+1).points = getPcdMATfile(sprintf("data_mat1/000000000%d.mat", i-100));
-        end
-    end
-        
+
 %% test section
 
 source = load('./Data/source.mat');
@@ -118,9 +114,13 @@ for i=1:length(secondHalfPoses)
     end
 end
 
-%%
-source = frames(50).points';
-fscatter3(source(1, :), source(2, :), source(3, :), source(3, :));
+        
+
+%% get poses
+
+sampling = struct();
+sampling.name = 'random';
+poses = estimateCameraPoses(frames, 2, sampling);
 
 %% merge frames
 
