@@ -53,6 +53,8 @@ function [rotation, translation, rms_history] = ICP(base, target, nr_iterations,
             pause(0.1)
             fprintf("RMS %3.4f\n", rms);
         end
+        
+        % stopping criterion.
         if abs(rms - past_rms) < epsilon
             fprintf("stopping early Iteration: %d, RMS: %3.4f\n", iter, rms);
             break

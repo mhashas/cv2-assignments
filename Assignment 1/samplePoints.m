@@ -2,8 +2,7 @@ function sampledPoints = samplePoints(points, sampling)
     % sampling is a struct containing 
     % sampling.name = 'all'|'random'|'random per iteration'|'informative'
     % sampling.size = size of sample
-    % sampling.normals.target and sampling.normals.source when
-    % sampling.name = 'informative'
+    % sampling.normals.target and sampling.normals.source when sampling.name = 'informative'
     % sampling.noise_removal = 0 | 1
     % if sampling.noise_removal = 1 there should be a sampling.target
     

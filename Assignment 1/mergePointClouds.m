@@ -1,6 +1,6 @@
 function mergedCloud =  mergePointClouds(cloudOne, cloudTwo)
-%mergedCloud - This function merges two point clouds( no matter the
-%dimension) by taking the reunion between the two clouds
+% mergedCloud - This function merges two point clouds( no matter the
+% dimension) by taking the reunion between the two clouds
 %
 % Syntax:  [output1,output2] = function_name(input1,input2,input3)
 %

@@ -1,60 +1,57 @@
 %% Read the data
-    files = [];
-    frames = struct;
-    for i=0:99
-        if i<10
-    %         frames(i+1) = load(sprintf("data_mat1/000000000%d.mat", i));
-    %         frames(i+1).points = getPcd(sprintf("Data/data/000000000%d.pcd", i));
-            frames(i+1).points = getPcdMATfile(sprintf("data_mat1/000000000%d", i));
-            %frames(i+1).points = getPcdMATfile(sprintf("data_mat1/000000000%d_normal.mat", i));
-        else
-    %         frames = [frames, load(sprintf("data_mat1/00000000%d.mat", i))];
-    %         frames(i+1).points = getPcd(sprintf("Data/data/000000000%d.pcd", i));
-            frames(i+1).points = getPcdMATfile(sprintf("data_mat1/00000000%d", i));
-            %frames(i+1).points = getPcdMATfile(sprintf("data_mat1/00000000%d_normal.mat", i));
-
+frames = struct;
+for i=0:99
+    if i<10
+        frames(i+1).points = getPcdMATfile(sprintf("data_mat1/000000000%d", i));
+    else
+        frames(i+1).points = getPcdMATfile(sprintf("data_mat1/00000000%d", i));
+    end
+end
 %% test section
-
 source = load('./Data/source.mat');
+source = source.source;
 target = load('./Data/target.mat');
+target = target.target;
 
-source = frames(1).points';
-target = frames(11).points';
+sampling = struct;
+sampling.name = "random";
+sampling.noise_removal = 0;
+sampling.size = 1000;
 
-[R, t] = ICP(samplePoints(source, 1000, 'random'), target, 40, 0);
+[R, t] = ICP(source, target, 40, sampling, 0, 0);
 
 figure
 source = R * source + t;
 fscatter3(target(1, :), target(2, :), target(3, :), target(3, :));
 fscatter3(source(1, :), source(2, :), source(3, :), source(3, :));
 
-%% get poses
+%% Frame by frame estimation
 
-% % Frame by frame estimation
 % posesEveryFrame = estimateCameraPoses(frames, 1);
 % save('posesEveryFrame.mat','posesEveryFrame');
-load('posesEveryFrame.mat');
+% load('posesEveryFrame.mat');
 
 % posesEverySecondFrame = estimateCameraPoses(frames, 2);
 % save('posesEverySecondFrame.mat','posesEverySecondFrame');
-load('posesEverySecondFrame.mat');
+% load('posesEverySecondFrame.mat');
 
-% posesEveryFifthFrame = estimateCameraPoses(frames, 5);
-% save('posesEveryFifthFrame.mat','posesEveryFifthFrame');
+posesEveryFifthFrame = estimateCameraPoses(frames, 5, sampling, 1, 11);
+save('posesEveryFifthFrame.mat','posesEveryFifthFrame');
 load('posesEveryFifthFrame.mat');
 
 % posesEveryTenthFrame = estimateCameraPoses(frames, 10);
 % save('posesEveryTenthFrame.mat','posesEveryTenthFrame');
-load('posesEveryTenthFrame.mat');
+% load('posesEveryTenthFrame.mat');
 
-% Frame by "cumulative frames" estimation
+%% Frame by "cumulative frames" estimation
+
 % cumulativePosesEveryFrame = estimateCameraPosesIterativeMerges(frames, 1);
 % save('cumulativePosesEveryFrame.mat','cumulativePosesEveryFrame');
-
+% load('cumulativePosesEveryFrame.mat');
 
 % cumulativePosesEverySecondFrame = estimateCameraPosesIterativeMerges(frames, 2);
 % save('cumulativePosesEverySecondFrame.mat','cumulativePosesEverySecondFrame');
-
+% load('cumulativePosesEverySecondFrame.mat');
 
 % cumulativePosesEveryFifthFrame = estimateCameraPosesIterativeMerges(frames, 5);
 % save('cumulativePosesEveryFifthFrame.mat','cumulativePosesEveryFifthFrame');
@@ -114,14 +111,6 @@ for i=1:length(secondHalfPoses)
     end
 end
 
-        
-
-%% get poses
-
-sampling = struct();
-sampling.name = 'random';
-poses = estimateCameraPoses(frames, 2, sampling);
-
 %% merge frames
 
 cumulatedRotation = eye(3);
@@ -132,8 +121,8 @@ poses = posesEveryFifthFrame;
 hold all;
 plot_every = 1;
 points = frames(poses(1).toFrame).points';
-%plot3(points(:,1),points(:,2),points(:,3), 'o', 'markerSize', 0.3);
-fscatter3(points(:,1),points(:,2),points(:,3), points(:,2));
+plot3(points(:,1),points(:,2),points(:,3), 'r.');
+% fscatter3(points(:,1),points(:,2),points(:,3), points(:,2));
 for i=1:length(poses)
     cumulatedRotation = (poses(i).rotation) * cumulatedRotation;
     cumulatedTranslation = (poses(i).rotation) * cumulatedTranslation + (poses(i).translation);
@@ -142,8 +131,11 @@ for i=1:length(poses)
     points = cumulatedRotation * points + cumulatedTranslation;
      
     if mod(i,plot_every) == 0
-
-%          plot3(points(1,:),points(2,:),points(3,:), 'bo', 'markerSize', 0.3);
-        fscatter3(points(1,:),points(2,:),points(3,:), points(3,:));
+        if i == 1
+            plot3(points(1,:),points(2,:),points(3,:), 'b.');
+        else
+            plot3(points(1,:),points(2,:),points(3,:), 'g.');
+        end
+%         fscatter3(points(1,:),points(2,:),points(3,:), points(3,:));
     end
 end
