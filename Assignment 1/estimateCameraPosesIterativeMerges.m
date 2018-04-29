@@ -1,6 +1,6 @@
-function poses = estimateCameraPosesIterativeMerges(frames, frameSamplingRate, startFrame, endFrame)
+function poses = estimateCameraPosesIterativeMerges(frames, frameSamplingRate, sampling, startFrame, endFrame)
     switch nargin
-        case 4
+        case 5
             startFrame = startFrame;
             endFrame = endFrame;
         otherwise
@@ -17,7 +17,7 @@ function poses = estimateCameraPosesIterativeMerges(frames, frameSamplingRate, s
         base = sampledFrames(i).points';
         target = mergedFrames;
         
-        [R, t] = estimateCameraPoseBetweenFrames(base, target);
+        [R, t] = estimateCameraPoseBetweenFrames(base, target, sampling);
         
         transformedBase = R * base + t;
         mergedFrames = mergePointClouds(transformedBase, mergedFrames);
