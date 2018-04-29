@@ -1,7 +1,7 @@
 %% Read the data
     files = [];
     frames = struct;
-    for i=0:109
+    for i=0:99
         if i<10
     %         frames(i+1) = load(sprintf("data_mat1/000000000%d.mat", i));
     %         frames(i+1).points = getPcd(sprintf("Data/data/000000000%d.pcd", i));
@@ -22,7 +22,7 @@
 source = load('./Data/source.mat');
 target = load('./Data/target.mat');
 
-source = frames(6).points';
+source = frames(1).points';
 target = frames(11).points';
 
 [R, t] = ICP(samplePoints(source, 1000, 'random'), target, 40, 0);
@@ -33,12 +33,101 @@ fscatter3(target(1, :), target(2, :), target(3, :), target(3, :));
 fscatter3(source(1, :), source(2, :), source(3, :), source(3, :));
 
 %% get poses
-poses = estimateCameraPosesIterativeMerges(frames, 5, 1, 20);
+
+% % Frame by frame estimation
+% posesEveryFrame = estimateCameraPoses(frames, 1);
+% save('posesEveryFrame.mat','posesEveryFrame');
+load('posesEveryFrame.mat');
+
+% posesEverySecondFrame = estimateCameraPoses(frames, 2);
+% save('posesEverySecondFrame.mat','posesEverySecondFrame');
+load('posesEverySecondFrame.mat');
+
+% posesEveryFifthFrame = estimateCameraPoses(frames, 5);
+% save('posesEveryFifthFrame.mat','posesEveryFifthFrame');
+load('posesEveryFifthFrame.mat');
+
+% posesEveryTenthFrame = estimateCameraPoses(frames, 10);
+% save('posesEveryTenthFrame.mat','posesEveryTenthFrame');
+load('posesEveryTenthFrame.mat');
+
+% Frame by "cumulative frames" estimation
+% cumulativePosesEveryFrame = estimateCameraPosesIterativeMerges(frames, 1);
+% save('cumulativePosesEveryFrame.mat','cumulativePosesEveryFrame');
+
+
+% cumulativePosesEverySecondFrame = estimateCameraPosesIterativeMerges(frames, 2);
+% save('cumulativePosesEverySecondFrame.mat','cumulativePosesEverySecondFrame');
+
+
+% cumulativePosesEveryFifthFrame = estimateCameraPosesIterativeMerges(frames, 5);
+% save('cumulativePosesEveryFifthFrame.mat','cumulativePosesEveryFifthFrame');
+load('cumulativePosesEveryFifthFrame.mat');
+
+% cumulativePosesEveryTenthFrame = estimateCameraPosesIterativeMerges(frames, 10);
+% save('cumulativePosesEveryTenthFrame.mat','cumulativePosesEveryTenthFrame');
+load('cumulativePosesEveryTenthFrame.mat');
+
+%%
+firstHalf = frames(1:50);
+secondHalf = [frames(51:100),frames(1)];
+reversedSecondHalf = fliplr(secondHalf);
+
+% firstHalfPoses = estimateCameraPoses(firstHalf, 5);
+% save('firstHalfPoses.mat','firstHalfPoses');
+load('firstHalfPoses.mat');
+secondHalfPoses = estimateCameraPoses(reversedSecondHalf, 5);
+save('secondHalfPoses.mat','secondHalfPoses');
+load('secondHalfPoses.mat');
+
+%%
+
+hold all;
+plot_every = 1;
+%plot the first half:
+cumulatedRotation = eye(3);
+cumulatedTranslation = zeros(3,1);
+points = firstHalf(firstHalfPoses(1).toFrame).points';
+fscatter3(points(:,1),points(:,2),points(:,3), points(:,2));
+for i=1:length(firstHalfPoses)
+    cumulatedRotation = (firstHalfPoses(i).rotation) * cumulatedRotation;
+    cumulatedTranslation = (firstHalfPoses(i).rotation) * cumulatedTranslation + (firstHalfPoses(i).translation);
+     
+    points = firstHalf(firstHalfPoses(i).fromFrame).points'; 
+    points = cumulatedRotation * points + cumulatedTranslation;
+     
+    if mod(i,plot_every) == 0
+        fscatter3(points(1,:),points(2,:),points(3,:), points(3,:));
+    end
+end
+
+% plot the reversed second half:
+cumulatedRotation = eye(3);
+cumulatedTranslation = zeros(3,1);
+
+fscatter3(points(:,1),points(:,2),points(:,3), points(:,2));
+for i=1:length(secondHalfPoses)
+    cumulatedRotation = (secondHalfPoses(i).rotation) * cumulatedRotation;
+    cumulatedTranslation = (secondHalfPoses(i).rotation) * cumulatedTranslation + (secondHalfPoses(i).translation);
+     
+    points = reversedSecondHalf(secondHalfPoses(i).fromFrame).points'; 
+    points = cumulatedRotation * points + cumulatedTranslation;
+     
+    if mod(i,plot_every) == 0
+        fscatter3(points(1,:),points(2,:),points(3,:), points(3,:));
+    end
+end
+
+%%
+source = frames(50).points';
+fscatter3(source(1, :), source(2, :), source(3, :), source(3, :));
 
 %% merge frames
 
 cumulatedRotation = eye(3);
 cumulatedTranslation = zeros(3,1);
+
+poses = posesEveryFifthFrame;
 
 hold all;
 plot_every = 1;
