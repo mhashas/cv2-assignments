@@ -25,22 +25,24 @@ function sampledPoints = samplePoints(points, sampling)
         case 'informative'
             [dims, noPoints] = size(points);
             
-            sampled_indexes = zeros(1, sampling.size);
+            sampled_indexes = zeros(1, ceil(sampling.size/3));
             index_in_sampled_indexes = 1;
             for i = 1:dims
                 % e.g. 101 edges for 100 bins
-                edges = [-1:2/ceil(sampling.size/3):1];
+                edges = [min(min(sampling.normals.source(i,:))):2/ceil(sampling.size/3):max(max(sampling.normals.source(i,:)))];
                 
                 %CHECK HERE IF INDEXES OF NANS ARE THROWN, IF SO WE NEED TO
                 %MAKE UP FOR THAT
                 
                 %divide into the number of points we are looking for
-                [N, edges, bins] = histcounts(sampling.normals.source(1,:),edges);
+                [N, edges, bins] = histcounts(sampling.normals.source(i,:),edges);
                 
                 %take one from each bucket
                 %visited array
                 visited_array = zeros(1, ceil(sampling.size/3));
-                for idx = i:length(N)
+                indexes = 1:1:length(bins);
+                random_indexes = indexes(randperm(length(indexes)));
+                for idx = random_indexes
                     bin = bins(idx);
                     if bin > 0 && visited_array(bin) == 0
                         visited_array(bin) = 1;
