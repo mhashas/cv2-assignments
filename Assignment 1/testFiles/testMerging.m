@@ -4,8 +4,8 @@ options.sampling.bothFrames = 0;
 options.sampling.randomPerIteration = 1;
 options.sampling.isProcent = 0; % can merge isProcent and value fields in just one 'value' field
 options.sampling.value = 2000;
+options.sampling.noiseRemoval = 0;
 
-options.noiseRemoval = 0;
 options.visualiseSteps = 0;
 
 options.stoppingCriterion = struct;
@@ -16,7 +16,7 @@ options.stoppingCriterion.noIterations = 40;
 cumulatedRotation = eye(3);
 cumulatedTranslation = zeros(3,1);
 
-poses = estimateCameraPoses(frames, 4, options, 1, 30);
+poses = estimateCameraPoses(frames, 4, options, 1, 5);
 
 sampling = struct;
 sampling.name = "random";

@@ -108,7 +108,7 @@ load('cumulativePosesEveryTenthFrame.mat');
 cumulatedRotation = eye(3);
 cumulatedTranslation = zeros(3,1);
 
-poses = RposesEveryTenthFrame;
+poses = RposesEveryFifthFrame;
 
 sampling = struct;
 sampling.name = "random";
