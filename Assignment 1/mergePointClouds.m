@@ -1,14 +1,23 @@
 function mergedCloud =  mergePointClouds(cloudOne, cloudTwo)
-% mergedCloud - This function merges two point clouds( no matter the
+% mergePointClouds - This function merges two point clouds( no matter the
 % dimension) by taking the reunion between the two clouds
 %
-% Syntax:  [output1,output2] = function_name(input1,input2,input3)
+% Syntax:  mergedCloud = mergePointClouds(cloudOne, cloudTwo)
 %
 % Inputs:
-%    cloudOne - 3 by D1 matrix;
-%    cloudTwo - 3 by D2 matrix
+%    cloudOne - struct with fields {points, normals};
+%    cloudTwo - struct with fields {points, normals};
 %
 % Outputs:
-%    mergedCloud - 3 by D3 matrix (the merged point cloud)
-    mergedCloud = unique([cloudOne, cloudTwo]', 'rows')';
+%    mergedCloud - struct with fields {points, normals};
+%           mergedCloud.points - 3 by D3 matrix (the merged point cloud);
+%           mergedCloud.normals - 3 by D3 matrix (the merged point cloud);
+
+    A_P = [cloudOne.points, cloudTwo.points];
+    A_N = [cloudOne.normals, cloudTwo.normals];
+    [C, ia, ~] = unique(A_P', 'rows');
+    
+    mergedCloud = struct;
+    mergedCloud.points = C';
+    mergedCloud.normals = A_N(:,ia);
 end

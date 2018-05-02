@@ -13,9 +13,11 @@ function [pcd, pcd_n] = getPcdMATfile(filename)
     pcd = pcd(index, :);
     if nargout == 2
         pcd_n = pcd_n(index, :);
+        pcd_n = pcd_n';
     end
     
     % base with onl x,y,z values
     pcd = pcd(:,1:3);
+    pcd = pcd';
 end
 
