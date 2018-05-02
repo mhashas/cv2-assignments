@@ -22,6 +22,7 @@ options.sampling.noiseRemoval = 0;
 
 options.visualiseSteps = 0;
 options.rejectMatches = 1;
+
 options.stoppingCriterion = struct;
 options.stoppingCriterion.epsilon = 0;
 options.stoppingCriterion.noIterations = 40;
@@ -107,11 +108,10 @@ load('cumulativePosesEveryTenthFrame.mat');
 cumulatedRotation = eye(3);
 cumulatedTranslation = zeros(3,1);
 
-poses = RposesEverySecondFrame;
+poses = RposesEveryTenthFrame;
 
 sampling = struct;
 sampling.name = "random";
-sampling.noise_removal = 0;
 sampling.value = 1000;
 sampling.isProcent = 0;
 sampling.noiseRemoval = 0;

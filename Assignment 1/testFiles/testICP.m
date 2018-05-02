@@ -16,8 +16,8 @@ options.stoppingCriterion.epsilon = 0;
 options.stoppingCriterion.noIterations = 40;
 
 
-source = frames(83);
-target = frames(85);
+source = frames(77);
+target = frames(81);
 
 [R, t] = ICP(source, target, options);
 

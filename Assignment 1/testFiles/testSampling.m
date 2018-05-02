@@ -1,6 +1,6 @@
 %% Test sampling
 sampling = struct;
-sampling.name = "uniform-normals";
+sampling.name = "all";
 sampling.bothFrames = 0;
 sampling.randomPerIteration = 0;
 sampling.noiseRemoval = 0;
