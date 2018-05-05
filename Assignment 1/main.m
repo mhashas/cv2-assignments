@@ -2,140 +2,136 @@
 frames = struct;
 for i=0:99
     if i<10
-        frames(i+1).points = getPcdMATfile(sprintf("data_mat1/000000000%d", i));
+        [frames(i+1).points, frames(i+1).normals] = getPcdMATfile(sprintf("data_mat1/000000000%d", i));
     else
-        frames(i+1).points = getPcdMATfile(sprintf("data_mat1/00000000%d", i));
+        [frames(i+1).points, frames(i+1).normals] = getPcdMATfile(sprintf("data_mat1/00000000%d", i));
     end
 end
-%% test section
-source = load('./Data/source.mat');
-source = source.source;
-target = load('./Data/target.mat');
-target = target.target;
+clear i % remove 'i' from workspace
 
-sampling = struct;
-sampling.name = "random";
-sampling.noise_removal = 0;
-sampling.size = 1000;
+%% Set ICA options.
+options = struct;
 
-[R, t] = ICP(source, target, 40, sampling, 0, 0);
+options.sampling = struct;
+options.sampling.name = "random";
+options.sampling.bothFrames = 0;
+options.sampling.randomPerIteration = 0;
+options.sampling.isProcent = 0; % can merge isProcent and value fields in just one 'value' field
+options.sampling.value = 2000;
+options.sampling.noiseRemoval = 0;
 
-figure
-source = R * source + t;
-fscatter3(target(1, :), target(2, :), target(3, :), target(3, :));
-fscatter3(source(1, :), source(2, :), source(3, :), source(3, :));
+options.visualiseSteps = 0;
+options.rejectMatches = 1;
 
-%% Frame by frame estimation
+options.stoppingCriterion = struct;
+options.stoppingCriterion.epsilon = 0;
+options.stoppingCriterion.noIterations = 40;
 
-% posesEveryFrame = estimateCameraPoses(frames, 1);
-% save('posesEveryFrame.mat','posesEveryFrame');
-% load('posesEveryFrame.mat');
 
-% posesEverySecondFrame = estimateCameraPoses(frames, 2);
-% save('posesEverySecondFrame.mat','posesEverySecondFrame');
-% load('posesEverySecondFrame.mat');
 
-posesEveryFifthFrame = estimateCameraPoses(frames, 5, sampling, 1, 11);
-save('posesEveryFifthFrame.mat','posesEveryFifthFrame');
-load('posesEveryFifthFrame.mat');
+%% Frame by frame estimation - random
+options.sampling.name = "random";
 
-% posesEveryTenthFrame = estimateCameraPoses(frames, 10);
-% save('posesEveryTenthFrame.mat','posesEveryTenthFrame');
-% load('posesEveryTenthFrame.mat');
+% posesEveryFrame = estimateCameraPoses(frames, 1, options);
+% save('./poseEstimations/posesEveryFrame.mat','posesEveryFrame');
+load('./poseEstimations/posesEveryFrame.mat');
+
+% posesEverySecondFrame = estimateCameraPoses(frames, 2, options);
+% save('./poseEstimations/posesEverySecondFrame.mat','posesEverySecondFrame');
+load('./poseEstimations/posesEverySecondFrame.mat');
+
+% posesEveryFifthFrame = estimateCameraPoses(frames, 4, options);
+% save('./poseEstimations/posesEveryFifthFrame.mat','posesEveryFifthFrame');
+load('./poseEstimations/posesEveryFifthFrame.mat');
+
+% posesEveryTenthFrame = estimateCameraPoses(frames, 10, options);
+% save('./poseEstimations/posesEveryTenthFrame.mat','posesEveryTenthFrame');
+load('./poseEstimations/posesEveryTenthFrame.mat');
+
+options.sampling.randomPerIteration = 1;
+
+% RposesEveryFrame = estimateCameraPoses(frames, 1, options);
+% save('./poseEstimations/RposesEveryFrame.mat','RposesEveryFrame');
+load('./poseEstimations/RposesEveryFrame.mat');
+
+% RposesEverySecondFrame = estimateCameraPoses(frames, 2, options);
+% save('./poseEstimations/RposesEverySecondFrame.mat','RposesEverySecondFrame');
+load('./poseEstimations/RposesEverySecondFrame.mat');
+
+% RposesEveryFifthFrame = estimateCameraPoses(frames, 4, options);
+% save('./poseEstimations/RposesEveryFifthFrame.mat','RposesEveryFifthFrame');
+load('./poseEstimations/RposesEveryFifthFrame.mat');
+
+% RposesEveryTenthFrame = estimateCameraPoses(frames, 10, options);
+% save('./poseEstimations/RposesEveryTenthFrame.mat','RposesEveryTenthFrame');
+load('./poseEstimations/RposesEveryTenthFrame.mat');
+
+%% Frame by frame estimation - uniform-normals
+options.sampling.name = "uniform-normals";
+
+normalPosesEveryFrame = estimateCameraPoses(frames, 1, options);
+save('./poseEstimations/normalPosesEveryFrame.mat','normalPosesEveryFrame');
+load('./poseEstimations/normalPosesEveryFrame.mat');
+
+normalPosesEverySecondFrame = estimateCameraPoses(frames, 2, options);
+save('./poseEstimations/normalPosesEverySecondFrame.mat','normalPosesEverySecondFrame');
+load('./poseEstimations/normalPosesEverySecondFrame.mat');
+
+normalPosesEveryFifthFrame = estimateCameraPoses(frames, 5, options);
+save('./poseEstimations/normalPosesEveryFifthFrame.mat','normalPosesEveryFifthFrame');
+load('./poseEstimations/normalPosesEveryFifthFrame.mat');
+
+normalPosesEveryTenthFrame = estimateCameraPoses(frames, 10, options);
+save('./poseEstimations/normalPosesEveryTenthFrame.mat','normalPosesEveryTenthFrame');
+load('./poseEstimations/normalPosesEveryTenthFrame.mat');
 
 %% Frame by "cumulative frames" estimation
 
-% cumulativePosesEveryFrame = estimateCameraPosesIterativeMerges(frames, 1);
-% save('cumulativePosesEveryFrame.mat','cumulativePosesEveryFrame');
-% load('cumulativePosesEveryFrame.mat');
+cumulativePosesEveryFrame = estimateCameraPosesIterativeMerges(frames, 1);
+save('cumulativePosesEveryFrame.mat','cumulativePosesEveryFrame');
+load('cumulativePosesEveryFrame.mat');
 
-% cumulativePosesEverySecondFrame = estimateCameraPosesIterativeMerges(frames, 2);
-% save('cumulativePosesEverySecondFrame.mat','cumulativePosesEverySecondFrame');
-% load('cumulativePosesEverySecondFrame.mat');
+cumulativePosesEverySecondFrame = estimateCameraPosesIterativeMerges(frames, 2);
+save('cumulativePosesEverySecondFrame.mat','cumulativePosesEverySecondFrame');
+load('cumulativePosesEverySecondFrame.mat');
 
-% cumulativePosesEveryFifthFrame = estimateCameraPosesIterativeMerges(frames, 5);
-% save('cumulativePosesEveryFifthFrame.mat','cumulativePosesEveryFifthFrame');
+cumulativePosesEveryFifthFrame = estimateCameraPosesIterativeMerges(frames, 5, sampling,1, 21);
+save('cumulativePosesEveryFifthFrame.mat','cumulativePosesEveryFifthFrame');
 load('cumulativePosesEveryFifthFrame.mat');
 
-% cumulativePosesEveryTenthFrame = estimateCameraPosesIterativeMerges(frames, 10);
-% save('cumulativePosesEveryTenthFrame.mat','cumulativePosesEveryTenthFrame');
+cumulativePosesEveryTenthFrame = estimateCameraPosesIterativeMerges(frames, 10, sampling,1, 52 );
+save('cumulativePosesEveryTenthFrame.mat','cumulativePosesEveryTenthFrame');
 load('cumulativePosesEveryTenthFrame.mat');
-
-%%
-firstHalf = frames(1:50);
-secondHalf = [frames(51:100),frames(1)];
-reversedSecondHalf = fliplr(secondHalf);
-
-% firstHalfPoses = estimateCameraPoses(firstHalf, 5);
-% save('firstHalfPoses.mat','firstHalfPoses');
-load('firstHalfPoses.mat');
-secondHalfPoses = estimateCameraPoses(reversedSecondHalf, 5);
-save('secondHalfPoses.mat','secondHalfPoses');
-load('secondHalfPoses.mat');
-
-%%
-
-hold all;
-plot_every = 1;
-%plot the first half:
-cumulatedRotation = eye(3);
-cumulatedTranslation = zeros(3,1);
-points = firstHalf(firstHalfPoses(1).toFrame).points';
-fscatter3(points(:,1),points(:,2),points(:,3), points(:,2));
-for i=1:length(firstHalfPoses)
-    cumulatedRotation = (firstHalfPoses(i).rotation) * cumulatedRotation;
-    cumulatedTranslation = (firstHalfPoses(i).rotation) * cumulatedTranslation + (firstHalfPoses(i).translation);
-     
-    points = firstHalf(firstHalfPoses(i).fromFrame).points'; 
-    points = cumulatedRotation * points + cumulatedTranslation;
-     
-    if mod(i,plot_every) == 0
-        fscatter3(points(1,:),points(2,:),points(3,:), points(3,:));
-    end
-end
-
-% plot the reversed second half:
-cumulatedRotation = eye(3);
-cumulatedTranslation = zeros(3,1);
-
-fscatter3(points(:,1),points(:,2),points(:,3), points(:,2));
-for i=1:length(secondHalfPoses)
-    cumulatedRotation = (secondHalfPoses(i).rotation) * cumulatedRotation;
-    cumulatedTranslation = (secondHalfPoses(i).rotation) * cumulatedTranslation + (secondHalfPoses(i).translation);
-     
-    points = reversedSecondHalf(secondHalfPoses(i).fromFrame).points'; 
-    points = cumulatedRotation * points + cumulatedTranslation;
-     
-    if mod(i,plot_every) == 0
-        fscatter3(points(1,:),points(2,:),points(3,:), points(3,:));
-    end
-end
 
 %% merge frames
 
 cumulatedRotation = eye(3);
 cumulatedTranslation = zeros(3,1);
 
-poses = posesEveryFifthFrame;
+poses = RposesEveryFifthFrame;
 
-hold all;
+sampling = struct;
+sampling.name = "random";
+sampling.value = 1000;
+sampling.isProcent = 0;
+sampling.noiseRemoval = 0;
+
+hold on;
 plot_every = 1;
-points = frames(poses(1).toFrame).points';
-plot3(points(:,1),points(:,2),points(:,3), 'r.');
-% fscatter3(points(:,1),points(:,2),points(:,3), points(:,2));
+points = frames(poses(1).toFrame).points;
+fscatter3(points(:,1),points(:,2),points(:,3), points(:,2));
 for i=1:length(poses)
     cumulatedRotation = (poses(i).rotation) * cumulatedRotation;
     cumulatedTranslation = (poses(i).rotation) * cumulatedTranslation + (poses(i).translation);
-     
-    points = frames(poses(i).fromFrame).points'; 
-    points = cumulatedRotation * points + cumulatedTranslation;
-     
+    
+    
+    points = samplePoints(frames(poses(i).fromFrame), sampling);
+    points = cumulatedRotation * points.points + cumulatedTranslation;
+
     if mod(i,plot_every) == 0
-        if i == 1
-            plot3(points(1,:),points(2,:),points(3,:), 'b.');
-        else
-            plot3(points(1,:),points(2,:),points(3,:), 'g.');
-        end
-%         fscatter3(points(1,:),points(2,:),points(3,:), points(3,:));
+        fscatter3(points(1,:),points(2,:),points(3,:), points(3,:));
+        legend(['Last frame = ',num2str(poses(i).fromFrame)],'Location','NorthEast')
+        pause(0.4);
     end
 end
+hold off;
