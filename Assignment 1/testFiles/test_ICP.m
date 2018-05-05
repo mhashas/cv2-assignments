@@ -3,12 +3,10 @@
 % target = load('./Data/target.mat');
 % source = source.source;
 % target = target.target;
-[source, source_n] = getPcdMATfile("./data_mat1/0000000015");
-[target, target_n] = getPcdMATfile("./data_mat1/0000000020");
-source = source';
-source_n = source_n';
-target = target';
-target_n = target_n';
+source = struct
+target = struct
+[source.points, source.normals] = getPcdMATfile("./data_mat1/0000000015");
+[target.points, target.normals] = getPcdMATfile("./data_mat1/0000000020");
 
 %%
 %for noiseto = ["one" "both"]
@@ -28,27 +26,39 @@ for noise_removal = [0]%1]
                     noise = noise_type;
                     sigma = "_";
                 end
-
-                sampling.name = sampling_name;
+                options.sampling = struct;
+                options.sampling.name = sampling_name;
                 %set at 10%
-                sampling.size = floor(size(source,2) / 10);
+                options.sampling.value = floor(size(source,2) / 10);
 
                 if sampling.name == "informative"
                     sampling.normals = struct();
                     sampling.normals.source = source_n;
                     sampling.normals.target = target_n;
                 end
-
+                
                 source_noise = add_noise(source, noise, sigma);
                 if noiseto == "one"
                     target_noise = target;
                 else
                     target_noise = add_noise(target, noise, sigma);
                 end
+                
+                options.sampling.bothFrames = 0;    
+                options.sampling.randomPerIteration = 1;
+                options.sampling.isProcent = 0; % can merge isProcent and value fields in just one 'value' field
+                options.sampling.noiseRemoval = noise_removal;
 
+                options.rejectMatches = 1;
+                options.visualiseSteps = 1;
+
+                options.stoppingCriterion = struct;
+                options.stoppingCriterion.epsilon = 0;
+                options.stoppingCriterion.noIterations = 40;
+                
                 start_t = datetime('now');
 
-                [R, t, rms_history] = ICP(source_noise, target_noise, 20, sampling, 0, 0);
+                [R, t, rms_history] = ICP(source_noise, target_noise, options);
                 end_t = datetime('now');
                 duration = end_t - start_t;
 
@@ -64,7 +74,7 @@ for noise_removal = [0]%1]
     %             title(str);
     %             close all
     %             save fig
-                save(strcat("./experiments_human_15_20/",str,".mat"),'duration','rms_history','R', 't');
+                %save(strcat("./experiments_human_15_20/",str,".mat"),'duration','rms_history','R', 't');
             end
         end
     end
