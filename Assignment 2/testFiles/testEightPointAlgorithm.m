@@ -14,9 +14,10 @@ clear id
 
 p1List = f1([1,2], matches(1,:));
 p2List = f2([1,2], matches(2,:));
+clear f1 f2 matches;
 
 %% Run Eight-Point Algorithm
 
-F0 = eightPointAlgorithm(image1, image2, 0);
-F1 = eightPointAlgorithm(image1, image2, 1);
-F2 = eightPointAlgorithm(image1, image2, 2);
+F0 = eightPointAlgorithm(p1List, p2List, 0);
+F1 = eightPointAlgorithm(p1List, p2List, 1);
+F2 = eightPointAlgorithm(p1List, p2List, 2);

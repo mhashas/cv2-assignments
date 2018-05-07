@@ -29,18 +29,15 @@ function [fundamentalMatrix] = eightPointAlgorithm(p1List, p2List, normaliseAndR
     
 %--------------------Find a fundamental matrix--------------------
     if ransac == 1
-        FMatrixEnforced = getFundamentalMatrixWithRansac(p1List, p2List);
+        fundamentalMatrix = getFundamentalMatrixWithRansac(p1List, p2List);
     else
-        FMatrixEnforced = getFundamentalMatrix(p1List, p2List);
+        fundamentalMatrix = getFundamentalMatrix(p1List, p2List);
     end
     
 %--------------------------Denormalisation--------------------------
     if normalise == 1
 %         Denormalise fundamental matrix
-        fundamentalMatrix = T2' * FMatrixEnforced * T1;
-    else
-%         Keep matrix as it is
-        fundamentalMatrix = FMatrixEnforced;
+        fundamentalMatrix = T2' * fundamentalMatrix * T1;
     end
     
 end
@@ -53,7 +50,7 @@ function [pList] = normalisePoints(points, T)
     pList = pList([1,2],:);
 end
 
-function [FMatrixEnforced] = getFundamentalMatrix(p1List, p2List)
+function [F] = getFundamentalMatrix(p1List, p2List)
 %     Create matrix A
     A = createMatrixA(p1List, p2List);
     
@@ -73,9 +70,41 @@ function [FMatrixEnforced] = getFundamentalMatrix(p1List, p2List)
     Df(end,end) = 0;
     
 %     Recompute F: F = Uf * (Df prime) * (Vf transpose)
-    FMatrixEnforced = Uf * Df * Vf';
+    F = Uf * Df * Vf';
 end
 
-function [FMatrixEnforced] = getFundamentalMatrixWithRansac(p1List, p2List)
-%     TODO: implement this.
+function [F] = getFundamentalMatrixWithRansac(p1List, p2List)
+
+manyTimes = 100; % TODO: change to a plausible value.
+threshold = 0.2; % TODO: change to a plausible value.
+maxCount = 0;
+maxMask = [];
+
+%Repeat this process "many times".
+for i = 1:manyTimes
+    % First pick 8 point correspondences randomly from the set { pi ? p'i }
+    [random8Points1, random8Points2] = getRandomPoints(p1List, p2List, 8);
+
+    % Calculate a fundamental matrix F^.
+    FCandidate = getFundamentalMatrix(random8Points1, random8Points2);
+
+    % Count the number of inliers (the other correspondences that agree with this fundamental matrix). 
+    [count, inliersMask]  = getInliers(p1List, p2List, FCandidate, threshold);
+    
+    % Pick the largest set of inliers obtained...->
+    if count > maxCount
+        maxCount = count;
+        maxMask = inliersMask;
+    end
+end
+
+%...-> and apply fundamental matrix estimation step to the set of all inliers.
+F = getFundamentalMatrix(p1List(:,find(maxMask)), p2List(:,find(maxMask)));
+
+end
+
+function [count, inliersMask] = getInliers(p1List, p2List, F, threshold)
+    distances = getSampsonDistance(p1List, p2List, F);
+    inliersMask = distances <= threshold;
+    count = sum(inliersMask);
 end
