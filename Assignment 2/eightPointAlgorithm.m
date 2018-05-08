@@ -1,4 +1,23 @@
 function [fundamentalMatrix] = eightPointAlgorithm(p1List, p2List, normaliseAndRANSAC)
+% eightPointAlgorithm - This function returns the fundamental matrix for
+% some pairs of points (ideally, at least 8 pairs)
+%
+% Syntax:  [fundamentalMatrix] = eightPointAlgorithm(p1List, p2List, normaliseAndRANSAC)
+%
+% Inputs:
+%   p1List, p2List  - 2 by N matrices
+%                   - N represents the number of points
+%                   - 2, for x and y coordonate of a point; however, this 
+%                      dimension can be higher, because only the first two
+%                      rows are used.
+%   normaliseAndRANSAC - option for the variance of algorithm to be used
+%                        0-classic eight-point algorithm
+%                        1-normalised eight-point algorithm
+%                        2-normalised eight-point algorithm with RANSAC
+%
+% Outputs:
+%    fundamentalMatrix - 3 by 3 fundamental matrix.
+
 %     Parse parameters
     if nargin == 2
         normalise = 0;

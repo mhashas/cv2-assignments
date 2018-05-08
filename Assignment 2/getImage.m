@@ -1,4 +1,13 @@
 function [image] = getImage(id)
+% getImage - This function returns the image with ge given id.
+%
+% Syntax:  [image] = getImage(id)
+%
+% Inputs:
+%   id - integer bigger than 0.
+%
+% Outputs:
+%    image - images, as read with im2single(imread("{{path}}"));
 dataset_path = 'Data/House/';
 image_path = '';
 
