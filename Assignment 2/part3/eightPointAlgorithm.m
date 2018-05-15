@@ -1,4 +1,4 @@
-function [fundamentalMatrix] = eightPointAlgorithm(p1List, p2List, normaliseAndRANSAC)
+function [fundamentalMatrix, points1, points2] = eightPointAlgorithm(p1List, p2List, normaliseAndRANSAC)
 % eightPointAlgorithm - This function returns the fundamental matrix for
 % some pairs of points (ideally, at least 8 pairs)
 %
@@ -48,9 +48,18 @@ function [fundamentalMatrix] = eightPointAlgorithm(p1List, p2List, normaliseAndR
     
 %--------------------Find a fundamental matrix--------------------
     if ransac == 1
-        fundamentalMatrix = getFundamentalMatrixWithRansac(p1List, p2List);
+        if nargout > 1
+            [fundamentalMatrix, points1, points2] = getFundamentalMatrixWithRansac(p1List, p2List);
+        else
+            fundamentalMatrix = getFundamentalMatrixWithRansac(p1List, p2List);
+        end
+        
     else
-        fundamentalMatrix = getFundamentalMatrix(p1List, p2List);
+        if nargout > 1
+            [fundamentalMatrix, points1, points2] = getFundamentalMatrix(p1List, p2List);
+        else
+            fundamentalMatrix = getFundamentalMatrix(p1List, p2List);
+        end
     end
     
 %--------------------------Denormalisation--------------------------
@@ -69,56 +78,67 @@ function [pList] = normalisePoints(points, T)
     pList = pList([1,2],:);
 end
 
-function [F] = getFundamentalMatrix(p1List, p2List)
-%     Create matrix A
+function [F, p1List, p2List] = getFundamentalMatrix(p1List, p2List)
+    % Just for output
+    if nargout > 1
+        p1List = p1List;
+        p2List = p2List;
+    end
+    
+    % Create matrix A
     A = createMatrixA(p1List, p2List);
     
-%     Find the SVD of A:
+    % Find the SVD of A:
     [~, ~, V] = svd(A);
     
-%     The entries of F are the components of the column of V corresponding
-%     to the smallest singular value.
+    % The entries of F are the components of the column of V corresponding
+    % to the smallest singular value.
     FColumn = V(:,end);
     FMatrix = reshape(FColumn, [3,3])';
     
-%     Find the SVD of F(aka FMatrix):
+    % Find the SVD of F(aka FMatrix):
     [Uf, Df, Vf] = svd(FMatrix);
     
-%     Set the smallest singular value in the diagonal matrix Df to zero in
-%     order to obtain the corrected matrix Df prime
+    % Set the smallest singular value in the diagonal matrix Df to zero in
+    % order to obtain the corrected matrix Df prime
     Df(end,end) = 0;
     
-%     Recompute F: F = Uf * (Df prime) * (Vf transpose)
+    % Recompute F: F = Uf * (Df prime) * (Vf transpose)
     F = Uf * Df * Vf';
 end
 
-function [F] = getFundamentalMatrixWithRansac(p1List, p2List)
+function [F, p1List, p2List] = getFundamentalMatrixWithRansac(p1List, p2List)
 
-manyTimes = 100; % TODO: change to a plausible value.
-threshold = 0.2; % TODO: change to a plausible value.
-maxCount = 0;
-maxMask = [];
+    manyTimes = 100; % TODO: change to a plausible value.
+    threshold = 0.2; % TODO: change to a plausible value.
+    maxCount = 0;
+    maxMask = [];
 
-%Repeat this process "many times".
-for i = 1:manyTimes
-    % First pick 8 point correspondences randomly from the set { pi ? p'i }
-    [random8Points1, random8Points2] = getRandomPoints(p1List, p2List, 8);
+    %Repeat this process "many times".
+    for i = 1:manyTimes
+        % First pick 8 point correspondences randomly from the set { pi ? p'i }
+        [random8Points1, random8Points2] = getRandomPoints(p1List, p2List, 8);
 
-    % Calculate a fundamental matrix F^.
-    FCandidate = getFundamentalMatrix(random8Points1, random8Points2);
+        % Calculate a fundamental matrix F^.
+        FCandidate = getFundamentalMatrix(random8Points1, random8Points2);
 
-    % Count the number of inliers (the other correspondences that agree with this fundamental matrix). 
-    [count, inliersMask]  = getInliers(p1List, p2List, FCandidate, threshold);
-    
-    % Pick the largest set of inliers obtained...->
-    if count > maxCount
-        maxCount = count;
-        maxMask = inliersMask;
+        % Count the number of inliers (the other correspondences that agree with this fundamental matrix). 
+        [count, inliersMask]  = getInliers(p1List, p2List, FCandidate, threshold);
+
+        % Pick the largest set of inliers obtained...->
+        if count > maxCount
+            maxCount = count;
+            maxMask = inliersMask;
+        end
     end
-end
 
-%...-> and apply fundamental matrix estimation step to the set of all inliers.
-F = getFundamentalMatrix(p1List(:,find(maxMask)), p2List(:,find(maxMask)));
+    %...-> and apply fundamental matrix estimation step to the set of all inliers.
+    % Just for output
+    if nargout > 1
+        [F, p1List, p2List] = getFundamentalMatrix(p1List(:,find(maxMask)), p2List(:,find(maxMask)));
+    else
+        F = getFundamentalMatrix(p1List(:,find(maxMask)), p2List(:,find(maxMask)));
+    end
 
 end
 
