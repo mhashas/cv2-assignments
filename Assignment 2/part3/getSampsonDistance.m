@@ -19,7 +19,7 @@ function [distance] = getSampsonDistance(points1, points2, F)
     points1 = [points1(1,:); points1(2,:); ones([1, size(points1,2)])];
     points2 = [points2(1,:); points2(2,:); ones([1, size(points2,2)])];
     
-    numerator = points2' * F * points1;
+    numerator = (points2' * F * points1).^2;
     donominator = sum((F * points1).^2) + sum((F * points2).^2);
     
     distance = diag(numerator ./ donominator);

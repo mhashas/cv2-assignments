@@ -1,14 +1,14 @@
-%% run startup.m
+%% Run startup.m
 startup
 
-%% load mock data
+%% Load mock data
 id = 11;
 image1 = getImage(id);
 id = 30;
 image2 = getImage(id);
 clear id
 
-%%     Get matching pairs;
+%% Get matching pairs;
 
 % threshold used for matching points
 threshold = 3;

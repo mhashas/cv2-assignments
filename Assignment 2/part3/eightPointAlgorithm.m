@@ -117,7 +117,7 @@ end
 function [F, p1List, p2List] = getFundamentalMatrixWithRansac(p1List, p2List)
 
     manyTimes = 100; % TODO: change to a plausible value.
-    threshold = 0.2; % TODO: change to a plausible value.
+    threshold = 0.0004; % TODO: change to a plausible value.
     maxCount = 0;
     maxMask = [];
 
