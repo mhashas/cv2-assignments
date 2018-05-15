@@ -17,6 +17,13 @@ function [fundamentalMatrix, points1, points2] = eightPointAlgorithm(p1List, p2L
 %
 % Outputs:
 %    fundamentalMatrix - 3 by 3 fundamental matrix.
+%    points1, points2 - optional output parameters. They represent the
+%                       points used for computing the fundamental matrix.
+%                       Depending on the normaliseAndRANSAC(0/1/2), the points can
+%                       represent: 
+%                               0 - all points
+%                               1 - all normalised points
+%                               2 - all inliers
 
 %     Parse parameters
     if nargin == 2

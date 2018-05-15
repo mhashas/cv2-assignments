@@ -10,11 +10,13 @@ clear id
 
 %%     Get matching pairs;
 
-[f1, ~, f2, ~, matches, ~] = getKeypointMatches(image1, image2, 3);
+% threshold used for matching points
+threshold = 3;
+[f1, ~, f2, ~, matches, ~] = getKeypointMatches(image1, image2, threshold);
 
 p1List = f1([1,2], matches(1,:));
 p2List = f2([1,2], matches(2,:));
-clear f1 f2 matches;
+clear f1 f2 matches threshold;
 
 %% Test corespondences
 
