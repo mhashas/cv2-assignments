@@ -4,7 +4,7 @@ startup
 %% load mock data
 id = 11;
 image1 = getImage(id);
-id = 13;
+id = 30;
 image2 = getImage(id);
 clear id
 
@@ -16,12 +16,9 @@ p1List = f1([1,2], matches(1,:));
 p2List = f2([1,2], matches(2,:));
 clear f1 f2 matches;
 
-%% Run Eight-Point Algorithm
+%% Test corespondences
 
-F0 = eightPointAlgorithm(p1List, p2List, 0);
-F1 = eightPointAlgorithm(p1List, p2List, 1);
-F2 = eightPointAlgorithm(p1List, p2List, 2);
+% p1List = p1List(:,[1:1:200]);
+% p2List = p2List(:,[1:1:200]);
 
-%% Print images and emipolar lines
-
-showEpipolarLinesInteractiv(image1, image2, F0, F1, F2);
+showCorespondences(image1, image2, p1List, p2List)
