@@ -31,6 +31,10 @@ denseBlocks = [];
 while currentView < NViews
     % COMMENT
     
+    if mod(currentView ,2)==0
+        currentView = currentView + 1;
+    end
+    
     lastView = currentView;
     commonPointsIndeces = find(pointViewMatrix(currentView,:));
     while lastView < NViews && lastView - currentView + 1 <= maxViewsPerBlock
@@ -61,7 +65,10 @@ while currentView < NViews
         end
     end
     
-    if lastView - currentView + 1 > minVeiwsPerBlock
+%     if mod(lastView,2) ~= 0
+%         lastView = lastView - 1;
+%     end
+    if lastView - currentView + 1 >= minVeiwsPerBlock
         db = struct;
         db.startView = currentView;
         db.endView = lastView;
