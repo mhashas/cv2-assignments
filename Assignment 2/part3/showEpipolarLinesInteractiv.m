@@ -18,46 +18,58 @@ function showEpipolarLinesInteractiv(image1, image2, F0, F1, F2)
     end
     
 
-    fig1 = figure(1);
+    figure(1);
     position_figure(1, 2, 1)
     clf
     imshow(image1)
 
     hold on
 
-    fig2 = figure(2);
+    figure(2);
     position_figure(1, 2, 2)
     clf
     imshow(image2)
 
     count = 1;
+    data = [];
     while(1) 
         figure(1)
-        [x, y , mb]=ginput(1);
+        try
+            
+            [x, y , mb] = ginput(1);
+        catch ME
+            break
+        end
         if mb==1 
+            data(:,count) = [x,y];
             figure(2)
             hold on
             switch no_matrices
                 case 1
-                    drawLineInFig(F0, x, y, image2, '-');
+                    plottedLines(:,count,1) = drawLineInFig(F0, x, y, image2, '-');
                 case 2
-                    drawLineInFig(F0, x, y, image2, '-');
-                    drawLineInFig(F1, x, y, image2, '-.');
+                    plottedLines(:,count,1) = drawLineInFig(F0, x, y, image2, '-');
+                    plottedLines(:,count,2) = drawLineInFig(F1, x, y, image2, '-.');
                 case 3
-                    drawLineInFig(F0, x, y, image2, '-');
-                    drawLineInFig(F1, x, y, image2, '-.');
-                    drawLineInFig(F2, x, y, image2, ':');  
+                    plottedLines(:,count,1) = drawLineInFig(F0, x, y, image2, '-');
+                    plottedLines(:,count,2) = drawLineInFig(F1, x, y, image2, '-.');
+                    plottedLines(:,count,3) = drawLineInFig(F2, x, y, image2, ':');  
             end
             % optionally display points
             figure(1)
-            handlesPointsInImage(:,count)=plot(x,y,'.r');
+            handlesPointsInImage(:,count)=plot(x,y,'xr');
         end
         if mb==3
-            ind=knnsearch(data(1:2,:)',[x,y]);
-            data(:,ind)=[];
-            % if points were displayed
-            delete(handlesPointsInImage(:,ind));
-            handlesPointsInImage(:,ind)=[];
+            if size(data,1) > 0
+                ind=knnsearch(data(1:2,:)',[x,y]);
+                data(:,ind)=[];
+                % if points were displayed
+                delete(handlesPointsInImage(:,ind));
+                handlesPointsInImage(:,ind)=[];
+
+                delete(plottedLines(:,ind,:));
+                plottedLines(:,ind,:) = [];
+            end
         end
         if mb==2 % Middle mouse button exits the pick mode
             break;
@@ -67,7 +79,7 @@ function showEpipolarLinesInteractiv(image1, image2, F0, F1, F2)
 end
 
 
-function drawLineInFig(F, x, y, image, lineStyle)
+function [plotted] =  drawLineInFig(F, x, y, image, lineStyle)
     line = F * [x;y;1];
     a = line(1);
     b = line(2);
@@ -75,5 +87,5 @@ function drawLineInFig(F, x, y, image, lineStyle)
     width = size(image,2);
     x = 0:0.01:width;
     y = (-a*x - c)/b;
-    plot(x,y, lineStyle)
+    plotted = plot(x,y, lineStyle);
 end
