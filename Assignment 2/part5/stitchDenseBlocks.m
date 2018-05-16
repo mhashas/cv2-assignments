@@ -13,7 +13,11 @@ function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, tran
 %                     y1(M)  y2(M)  y3(M) ... yN(M)
 %                     where xi(j) and yi(j) are the x- and y- projections of the ith 3D point 
 %                     in the jth camera. 
-%   denseBlocks - N * 4 matrix, where N is the number of blocks and each row is a dense block with y,x of left top corner and height and width of the denseblock
+%    denseBlocks - N * 1 array, where N is the number of blocks and each element is a denseBlock
+%    denseBlock - structure: 
+%                      * db.startView - index of first view of dense block
+%                      * db.endView - index of last view of dense block
+%                      * db.indices - list of common points in all the views from db.startView to db.endView
 %   transformationOrder - "oneToAll" | "allToOne"
 %                              oneToAll, transforms all the points at the moment to the points from the next block for each new block. a
 %                              allToOne, transforms all the points of the new block to all the points up to this block for every block
@@ -27,58 +31,67 @@ function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, tran
 stitchedPoints = NaN(3, NPoints);
 for blockIdx = 1:nrOfBlocks
     denseBlock = denseBlocks(blockIdx,:);
-    y = denseBlock(1);
-    x = denseBlock(2);
-    h = denseBlock(3);
-    w = denseBlock(4);
-    [M, S, t] = factorization(pointViewMatrix(y:y+h-1,x:x+w-1));
+    [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), 'euclidean');
     
-    
-    if longestNZSequence(stitchedPoints(1,x:x+w-1)) == 0
+    if length(find(~isnan(stitchedPoints(1,denseBlock.indices)))) == 0
         fprintf("adding new view'r.'\n");
-        stitchedPoints(:,x:x+w-1) = S;
-    else
-        %% all to one method and always prioritize points from main view
-        % get the indexes in denseBlock of common points
-        [startIdx, stopIdx] = longestNZSequence(stitchedPoints(1,x:x+w-1));
+        stitchedPoints(:,denseBlock.indices) = S;
+        stitchedIndices = denseBlock.indices;
         
+        plot3D(S,'b.');
+        hold all
+    else
+        % get the indexes in denseBlock of common points
+        commonIndices = intersect(stitchedIndices, denseBlock.indices);
+        
+        commonIndicesofDenseBlockInS = getIndicesOfAInB(commonIndices, denseBlock.indices);
         % S is shape from the factorization of the dense block
         % procrustes from denseBlock to main view
         if transformationOrder == "allToOne"
-            [error,~,transform] = procrustes(stitchedPoints(:,x+startIdx-1:x+stopIdx-1)', S(:,startIdx:stopIdx)');
+            %% all to one method and always prioritize points from main view
+            [error,~,transform] = procrustes(stitchedPoints(:,commonIndices)', S(:,commonIndicesofDenseBlockInS)');
             transformed_points = transform.b*S'*transform.T + transform.c(1,:);
+            plot3D(transformed_points','g.');
             if prioritize == "target"
                 % choose the points in the factorization of the denseBlock which
                 % are missing in the main view and add them to the main view
-                for i = x:x+w-1
+                idx = 0;
+                for i = denseBlock.indices
+                    idx = idx + 1;
                     if isnan(stitchedPoints(1,i))
-                        stitchedPoints(:,i) = transformed_points(i-x+1,:)';
+                        stitchedPoints(:,i) = transformed_points(idx,:)';
+                        stitchedIndices = union(stitchedIndices, denseBlock.indices);
                     end
                 end
             elseif prioritize == "source"
                 % add all the points from the factorization of the dense block
                 % and copy and replace them to the main view
-                stitchedPoints(:,x:x+w-1) = transformed_points(:,:)';
+                stitchedPoints(:,denseBlock.indices) = transformed_points(:,:)';
+                stitchedIndices = union(stitchedIndices, denseBlock.indices);
             else
                 fprintf("Wrong parameter");
             end
         elseif transformationOrder == "oneToAll"
             %% one to all method
-            [error,~,transform] = procrustes(S(:,startIdx:stopIdx)', stitchedPoints(:,x+startIdx-1:x+stopIdx-1)');
+            [error,~,transform] = procrustes(S(:,commonIndicesofDenseBlockInS)', stitchedPoints(:,commonIndices)');
             transformed_points = transform.b*stitchedPoints'*transform.T + transform.c(1,:);
             stitchedPoints = transformed_points';
             if prioritize == "source"
                 % choose the points in the factorization of the denseBlock which
                 % are missing in the main view and add them to the main view
-                for i = x:x+w-1
+                idx = 0;
+                for i = denseBlock.indices
+                    idx = idx + 1;
                     if isnan(stitchedPoints(1,i))
-                        stitchedPoints(:,i) = S(:,i-x+1);
+                        stitchedPoints(:,i) = S(:,idx);
                     end
                 end
+                stitchedIndices = union(stitchedIndices, denseBlock.indices);
             elseif prioritize == "target"
                 % add all the points from the factorization of the dense block
                 % and copy and replace them to the main view
-                stitchedPoints(:,x:x+w-1) = S(:,:);
+                stitchedPoints(:,denseBlock.indices) = S(:,:);
+                stitchedIndices = union(stitchedIndices, denseBlock.indices);
             else
                 fprintf("Wrong parameter");
             end
@@ -89,4 +102,3 @@ for blockIdx = 1:nrOfBlocks
     end
 end
 end
-

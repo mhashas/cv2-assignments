@@ -1,4 +1,4 @@
-function [startDensePointIdx, stopDensePointIdx] = longestNZSequence(array)
+function [startDensePointIdx, stopDensePointIdx] = longestNZArray(array)
     %find the longest Non Zero or Non NaN sequence in a vector and return its indeces
     NPoints = length(array);
     continuousNonZeroCounts = 0;
