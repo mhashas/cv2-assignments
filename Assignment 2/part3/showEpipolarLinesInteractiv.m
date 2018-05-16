@@ -34,7 +34,12 @@ function showEpipolarLinesInteractiv(image1, image2, F0, F1, F2)
     data = [];
     while(1) 
         figure(1)
-        [x, y , mb] = ginput(1);
+        try
+            
+            [x, y , mb] = ginput(1);
+        catch ME
+            break
+        end
         if mb==1 
             data(:,count) = [x,y];
             figure(2)
