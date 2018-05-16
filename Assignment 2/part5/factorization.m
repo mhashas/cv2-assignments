@@ -40,6 +40,7 @@ function [M, S, t] = factorization(pointViewMatrix, extraArg)
     S = W3*V3';
     
     if extraArg == "euclidean"
+        "HERE"
         %impose euclidean constraints on the basis vectors in M
         MInv = pinv(M);
         L = M\MInv';
