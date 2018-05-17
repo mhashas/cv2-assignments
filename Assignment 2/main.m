@@ -5,12 +5,12 @@ startup
     
 %% GET PVM
 threshold = 10;
-pv_matrix = chaining(1,47, threshold);
+pv_matrix = chaining(1,49,threshold);
 plot_last = size(pv_matrix,2);
-if size(pv_matrix,2) > 1200
+if size(pv_matrix,2) > 1500
     plot_last = 1200;
 end
-plot_pv_matrix(pv_matrix(:,1:plot_last));
+plot_pv_matrix(pv_matrix);
 figure
 imshow(pv_matrix(:,1:plot_last));
 %% RUN SFM
