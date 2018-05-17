@@ -49,9 +49,9 @@ for blockIdx = 1:nrOfBlocks
         stitchedPoints(:,denseBlock.indices) = S;
         stitchedIndices = denseBlock.indices;
         
-        
-        plot3D(S(:,:),'b.');
-        hold all
+%         figure
+%         plot3D(S(:,:),'b.');
+%         hold all
     else
         % get the indexes in denseBlock of common points
         commonIndices = intersect(stitchedIndices, denseBlock.indices);
@@ -64,7 +64,7 @@ for blockIdx = 1:nrOfBlocks
             [error,~,transform] = procrustes(stitchedPoints(:,commonIndices)', S(:,commonIndicesofDenseBlockInS)');
             transformed_points = transform.b*S'*transform.T + transform.c(1,:);
             
-            plot3D(transformed_points(:,: )','g.');
+            %plot3D(transformed_points(:,: )','g.');
             if prioritize == "target"
                 % choose the points in the factorization of the denseBlock which
                 % are missing in the main view and add them to the main view
