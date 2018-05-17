@@ -4,7 +4,7 @@ startup
 %% Load mock data
 id = 11;
 image1 = getImage(id);
-id = 13;
+id = 30;
 image2 = getImage(id);
 clear id
 
@@ -18,6 +18,9 @@ p1List = f1([1,2], matches(1,:));
 p2List = f2([1,2], matches(2,:));
 clear f1 f2 matches threshold;
 
+%% OPTIONAL - Get points in foreground
+[p1List, p2List] = selectPointsInForeground(image1, p1List, image2, p2List, 'both');
+
 %% Run Eight-Point Algorithm
 
 [F0, ~, ~] = eightPointAlgorithm(p1List, p2List, 0);
@@ -26,4 +29,4 @@ clear f1 f2 matches threshold;
 
 %% Print images and emipolar lines
 
-showEpipolarLinesInteractiv(image1, image2, F0, F1, F2);
+showEpipolarLinesInteractiv(image1, image2, F0);

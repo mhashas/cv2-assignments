@@ -31,6 +31,14 @@ function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, tran
 stitchedPoints = NaN(3, NPoints);
 for blockIdx = 1:nrOfBlocks
     denseBlock = denseBlocks(blockIdx,:);
+    %denseBlock.indices(119) = []
+    [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), 'euclidean');
+    
+    %remove noise
+    good_indices_in_S = find(S(3,:)<4 & S(3,:)> -2);
+    %S = S(:,good_indices_in_S);
+    denseBlock.indices = denseBlock.indices(good_indices_in_S);
+    %REDO factorization wothout outliers
     [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), 'euclidean');
     
     if length(find(~isnan(stitchedPoints(1,denseBlock.indices)))) == 0
@@ -38,7 +46,8 @@ for blockIdx = 1:nrOfBlocks
         stitchedPoints(:,denseBlock.indices) = S;
         stitchedIndices = denseBlock.indices;
         
-        plot3D(S,'b.');
+        
+        plot3D(S(:,:),'b.');
         hold all
     else
         % get the indexes in denseBlock of common points
@@ -51,7 +60,8 @@ for blockIdx = 1:nrOfBlocks
             %% all to one method and always prioritize points from main view
             [error,~,transform] = procrustes(stitchedPoints(:,commonIndices)', S(:,commonIndicesofDenseBlockInS)');
             transformed_points = transform.b*S'*transform.T + transform.c(1,:);
-            plot3D(transformed_points','g.');
+            
+            plot3D(transformed_points(:,: )','g.');
             if prioritize == "target"
                 % choose the points in the factorization of the denseBlock which
                 % are missing in the main view and add them to the main view

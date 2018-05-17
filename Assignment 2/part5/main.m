@@ -1,8 +1,8 @@
 %close all
 %clear all
 
-data = load("./../PointViewMatrix.txt");
-%add zeros manually simulating dense blocks
+% data = load("./../PointViewMatrix.txt");
+% %add zeros manually simulating dense blocks
 % data(1:50,51:215) = 0;
 % data(51:100,1:24) = 0;
 % data(51:100,101:215) = 0;
@@ -13,12 +13,16 @@ data = load("./../PointViewMatrix.txt");
 
 %%
 %data = load('gabriele.txt', '-ASCII');
-%data(isnan(data))=0;
 
-load('treshold-0.01.mat');
+load('3.mat');
+
 data = pv_matrix;
-denseBlocks = getCommonBlocks(data, 300, 3, 5);
-%denseBlocks = getDenseBlocks(data, 300, 3, 2);
-stitchedPoints = stitchDenseBlocks(data, denseBlocks, 'oneToAll','source');
+data(isnan(data))=0;
+denseBlocks = getCommonBlocks(data, 12, 3, 8);
+stitchedPoints = stitchDenseBlocks(data, denseBlocks, 'allToOne','source');
+
+%denseBlocks = getDenseBlocks(data, 12, 3, 8);
+%stitchedPoints = stitchDenseBlocks2(data, denseBlocks, 'allToOne','source');
+
 figure
-plot3D(stitchedPoints, 'b.');
+plot3D(stitchedPoints(:,indices), 'b.');

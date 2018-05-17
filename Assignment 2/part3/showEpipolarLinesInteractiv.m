@@ -57,7 +57,7 @@ function showEpipolarLinesInteractiv(image1, image2, F0, F1, F2)
             end
             % optionally display points
             figure(1)
-            handlesPointsInImage(:,count)=plot(x,y,'.r');
+            handlesPointsInImage(:,count)=plot(x,y,'xr');
         end
         if mb==3
             if size(data,1) > 0

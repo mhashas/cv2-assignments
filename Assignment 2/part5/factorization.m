@@ -20,6 +20,7 @@ function [M, S, t] = factorization(pointViewMatrix, extraArg)
 %    t - 1 * N matrix, mean of the pointViewMatrix by views
     
     %center data
+    
     dataMean = mean(pointViewMatrix, 2);
     dataCentered = pointViewMatrix - dataMean;
     
