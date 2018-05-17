@@ -12,6 +12,8 @@ function [f,d] = extractSIFT(image)
 %           scale and TH is the orientation (in radians).
 %    d -  Each column of D is the descriptor of the corresponding frame in 
 %           f. A descriptor is a 128-dimensional vector of class UINT8.
-    image = single(image);
-    [f, d] = vl_sift(image); 
+    
+    % image = imgaussfilt(image,10);
+    %[f, d] = vl_sift(image,'Levels',1);%'EdgeThresh',5,'PeakThresh',0.0005); 
+    [f, d] = vl_sift(single(image));%,'EdgeThresh',4,'PeakThresh',0.001); 
 end

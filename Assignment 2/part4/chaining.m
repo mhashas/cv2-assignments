@@ -16,6 +16,9 @@ function [pv_matrix] = chaining(first_index, last_index)
         % get matching points using eight point algorithm
         p1List = f1([1,2], matches(1,:));
         p2List = f2([1,2], matches(2,:));
+        
+        %[p1List, p2List] = selectPointsInForeground(image1, p1List, image2, p2List);
+        
         [F, p1, p2] = eightPointAlgorithm(p1List, p2List, 0);
         
         % handle outliers with F ? Should it be handled in eightPoint ? 

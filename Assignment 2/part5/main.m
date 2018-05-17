@@ -14,7 +14,7 @@
 %%
 %data = load('gabriele.txt', '-ASCII');
 
-load('3.mat');
+%load('3.mat');
 
 data = pv_matrix;
 data(isnan(data))=0;
@@ -25,4 +25,4 @@ stitchedPoints = stitchDenseBlocks(data, denseBlocks, 'allToOne','source');
 %stitchedPoints = stitchDenseBlocks2(data, denseBlocks, 'allToOne','source');
 
 figure
-plot3D(stitchedPoints(:,indices), 'b.');
+plot3D(stitchedPoints, 'b.');

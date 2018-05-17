@@ -1,4 +1,4 @@
-function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, transformationOrder, prioritize)
+function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, transformationOrder, prioritize, removeBackground)
 % stitchDenseBlocks - This function stitches together the points of the
 % dense blocks and returns the stitched points
 %
@@ -24,6 +24,7 @@ function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, tran
 %   prioritize - "source" | "target"
 %                                 source, after matching points from different blocks, we keep points from the source
 %                                 source, after matching points from different blocks, we keep points from the target
+%   removeBackground - if 1, remove background; do nothing otherwise 
 % Outputs:
 %    stitchedPoints - 3 * N matrix, where N is the nr of points in the pointViewMatrix. Contains 3D coordinates of each point
 [NViews, NPoints] = size(pointViewMatrix);
@@ -34,12 +35,14 @@ for blockIdx = 1:nrOfBlocks
     %denseBlock.indices(119) = []
     [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), 'euclidean');
     
-    %remove noise
-    good_indices_in_S = find(S(3,:)<4 & S(3,:)> -2);
-    %S = S(:,good_indices_in_S);
-    denseBlock.indices = denseBlock.indices(good_indices_in_S);
-    %REDO factorization wothout outliers
-    [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), 'euclidean');
+    if removeBackground == 1
+        %remove noise
+        good_indices_in_S = find(S(3,:)<4 & S(3,:)> -2);
+        %S = S(:,good_indices_in_S);
+        denseBlock.indices = denseBlock.indices(good_indices_in_S);
+        %REDO factorization wothout outliers
+        [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), 'euclidean');
+    end
     
     if length(find(~isnan(stitchedPoints(1,denseBlock.indices)))) == 0
         fprintf("adding new view'r.'\n");
