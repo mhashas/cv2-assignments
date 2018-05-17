@@ -1,5 +1,5 @@
 function [points1, points2] = selectPointsInForeground(image1, points1, image2, points2, option)
-%   option = 'all' | 'both' | 'left' | 'right'
+%   option = 'all' | 'both' | 'first' | 'second'
     if ~exist('option','var') || isempty(option)
         option = 'all';
     end 
@@ -27,9 +27,9 @@ function [selectedIndices] = getSelectedPointsByOption(selectedPointsIndices1, s
     switch option
         case 'both'
             selectedIndices = selectedPointsIndices1 & selectedPointsIndices2;
-        case 'left'
+        case 'first'
             selectedIndices = selectedPointsIndices1;
-        case 'right'
+        case 'second'
             selectedIndices = selectedPointsIndices2;
         case 'all'
             selectedIndices = selectedPointsIndices1 | 1 ;
