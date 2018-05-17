@@ -1,4 +1,4 @@
-function [M, S, t] = factorization(pointViewMatrix, extraArg)
+function [M, S, t] = factorization(pointViewMatrix, affineAmbiguity)
 % factorization - This function returns factorization of the
 % pointViewMatrix into two matrices after substracting mean
 %
@@ -13,7 +13,7 @@ function [M, S, t] = factorization(pointViewMatrix, extraArg)
 %                     y1(M)  y2(M)  y3(M) ... yN(M)
 %                     where xi(j) and yi(j) are the x- and y- projections of the ith 3D point 
 %                     in the jth camera. 
-%   extraArg - "euclidean", imposes uclidean constraint on the basis vectors of M
+%   affineAmbiguity - if 1, imposes uclidean constraint on the basis vectors of M
 % Outputs:
 %    M - N * 3 matrix, from the factorization
 %    S - 3 * M matrix, from the factorization 
@@ -40,8 +40,7 @@ function [M, S, t] = factorization(pointViewMatrix, extraArg)
     %S = sqrt(W3)*V3';
     S = W3*V3';
     
-    if extraArg == "euclidean"
-        "HERE"
+    if affineAmbiguity == 1
         %impose euclidean constraints on the basis vectors in M
         MInv = pinv(M);
         L = M\MInv';

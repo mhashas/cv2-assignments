@@ -1,4 +1,4 @@
-function [pv_matrix] = chaining(first_index, last_index)
+function [pv_matrix] = chaining(first_index, last_index, threshold)
     for index = first_index:last_index 
          fprintf('Image: %i of %i\n', index, last_index)
             
@@ -11,7 +11,7 @@ function [pv_matrix] = chaining(first_index, last_index)
          end
            
         % find matching points
-        [f1, ~, f2, ~, matches, ~] = getKeypointMatches(image1, image2, 5);
+        [f1, ~, f2, ~, matches, ~] = getKeypointMatches(image1, image2, threshold);
         
         % get matching points using eight point algorithm
         p1List = f1([1,2], matches(1,:));

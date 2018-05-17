@@ -1,4 +1,4 @@
-function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, transformationOrder, prioritize, removeBackground)
+function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, transformationOrder, prioritize, affineAmbiguity, removeBackground)
 % stitchDenseBlocks - This function stitches together the points of the
 % dense blocks and returns the stitched points
 %
@@ -25,6 +25,7 @@ function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, tran
 %                                 source, after matching points from different blocks, we keep points from the source
 %                                 source, after matching points from different blocks, we keep points from the target
 %   removeBackground - if 1, remove background; do nothing otherwise 
+%   affineAmbiguity  - if 1, apply affine ambiguity
 % Outputs:
 %    stitchedPoints - 3 * N matrix, where N is the nr of points in the pointViewMatrix. Contains 3D coordinates of each point
 [NViews, NPoints] = size(pointViewMatrix);
@@ -32,26 +33,26 @@ function [stitchedPoints] = stitchDenseBlocks(pointViewMatrix, denseBlocks, tran
 stitchedPoints = NaN(3, NPoints);
 for blockIdx = 1:nrOfBlocks
     denseBlock = denseBlocks(blockIdx,:);
-    %denseBlock.indices(119) = []
-    [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), 'euclidean');
+    [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), affineAmbiguity);
     
     if removeBackground == 1
         %remove noise
-        good_indices_in_S = find(S(3,:)<4 & S(3,:)> -2);
-        %S = S(:,good_indices_in_S);
+        good_indices_in_S = find(S(3,:)<3 & S(3,:)> -3);
         denseBlock.indices = denseBlock.indices(good_indices_in_S);
+        
         %REDO factorization wothout outliers
-        [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), 'euclidean');
+        [M, S, t] = factorization(pointViewMatrix(denseBlock.startView:denseBlock.endView, denseBlock.indices), affineAmbiguity);
+        good_indices_in_S = find(S(3,:)<3 & S(3,:)> -3);
+        denseBlock.indices = denseBlock.indices(good_indices_in_S);
+        
+        S = S(:,good_indices_in_S);
     end
     
     if length(find(~isnan(stitchedPoints(1,denseBlock.indices)))) == 0
-        fprintf("adding new view'r.'\n");
+        fprintf("adding new view\n");
         stitchedPoints(:,denseBlock.indices) = S;
         stitchedIndices = denseBlock.indices;
         
-%         figure
-%         plot3D(S(:,:),'b.');
-%         hold all
     else
         % get the indexes in denseBlock of common points
         commonIndices = intersect(stitchedIndices, denseBlock.indices);
