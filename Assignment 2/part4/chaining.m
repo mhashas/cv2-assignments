@@ -1,4 +1,4 @@
-function [pv_matrix] = chaining(first_index, last_index, remove_background, threshold)
+function [pv_matrix] = chaining(first_index, last_index, threshold, remove_background)
 % chaining - Start from any two consecutive image matches. Add a new column to
 % point-view matrix for each newly introduced point.
 % If a point which is already introduced in the point-view matrix and an-
@@ -10,8 +10,9 @@ function [pv_matrix] = chaining(first_index, last_index, remove_background, thre
 % Inputs:
 %   first_index - index of first image to be used
 %   last_index  - index of last image to be used
-%   remove_background - if 1 we remove background sift
 %   threshold   - threshold that is used in vl_ubcmatch. defaults to 5
+%   remove_background - if 1 we remove background sift
+%  
 %                   
 %
 % Outputs:
@@ -27,7 +28,12 @@ function [pv_matrix] = chaining(first_index, last_index, remove_background, thre
 %                     in the jth camera. 
     
     if nargin < 3
+        remove_background = 0;
         threshold = 5;
+    end
+    
+    if nargin < 4
+        remove_background = 0;
     end
     
     for index = first_index:last_index 
