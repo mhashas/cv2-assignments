@@ -55,16 +55,16 @@ function [pv_matrix] = chaining(first_index, last_index, threshold, remove_backg
         p2List = f2([1,2], matches(2,:));
         
         if remove_background
-            [p1List, p2List] = selectPointsInForeground(image1, p1List, image2, p2List);
+            [p1List, p2List] = selectPointsInForeground(image1, p1List, image2, p2List, 'both');
         end
         
         if size(p1List,2) < 8
             % we don't have 8 points, no reason to do eight point
             % algorithm. usually happens if the threshold is too big
-            %continue
+            continue
         end
         
-        [F, p1, p2] = eightPointAlgorithm(p1List, p2List, 0);
+        [F, p1, p2] = eightPointAlgorithm(p1List, p2List, 2);
         
         if index == 1
             % first iteration 
