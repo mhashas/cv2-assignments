@@ -21,7 +21,7 @@ options.normaliseAndRANSAC = -1; % 0 | 1 | 2 | -1; '-1' returs stuctures with 3 
 
 %% Run algorithm
 
-[F, ~, ~] = getFundamentalMatrixFromImages(image1, image2, options);
+[F, points1, points12] = getFundamentalMatrixFromImages(image1, image2, options);
 
 %% Visualise results
 

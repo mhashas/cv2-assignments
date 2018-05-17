@@ -2,9 +2,9 @@
 startup
 
 %% Load mock data
-id = 11;
+id = 1;
 image1 = getImage(id);
-id = 30;
+id = 5;
 image2 = getImage(id);
 clear id
 
@@ -23,10 +23,13 @@ clear f1 f2 matches threshold;
 
 %% Run Eight-Point Algorithm
 
-[F0, ~, ~] = eightPointAlgorithm(p1List, p2List, 0);
-[F1, ~, ~] = eightPointAlgorithm(p1List, p2List, 1);
-[F2, ~, ~] = eightPointAlgorithm(p1List, p2List, 2);
+[F0, p01, p02] = eightPointAlgorithm(p1List, p2List, 0);
+[F1, p11, p12] = eightPointAlgorithm(p1List, p2List, 1);
+[F2, p21, p22] = eightPointAlgorithm(p1List, p2List, 2);
 
-%% Print images and emipolar lines
+%% Print images and epipolar lines
 
-showEpipolarLinesInteractiv(image1, image2, F0);
+showEpipolarLinesInteractiv(image1, image2, F2);
+
+% if you want to see wich points were used for RANSAC(i.e. the inliers)
+% showCorespondences(image1,image2,p21,p22);

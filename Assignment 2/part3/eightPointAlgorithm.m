@@ -21,11 +21,11 @@ function [fundamentalMatrix, points1, points2] = eightPointAlgorithm(p1List, p2L
 %                       points used for computing the fundamental matrix.
 %                       Depending on the normaliseAndRANSAC(0/1/2), the points can
 %                       represent: 
-%                               0 - all points
-%                               1 - all normalised points
+%                               0 - all used points
+%                               1 - all used points
 %                               2 - all inliers
 
-%     Parse parameters
+%------------------------Parse parameters------------------------
     if nargin == 2
         normalise = 0;
         ransac = 0;
@@ -43,6 +43,11 @@ function [fundamentalMatrix, points1, points2] = eightPointAlgorithm(p1List, p2L
         end
     end
     
+%-----------------------Save original points----------------------
+    originalPoints1 = p1List;
+    originalPoints2 = p2List;
+    mask = true(1,size(p1List,2));
+    
 %--------------------------Normalisation--------------------------
     if normalise == 1
 %         Normalise points
@@ -55,24 +60,22 @@ function [fundamentalMatrix, points1, points2] = eightPointAlgorithm(p1List, p2L
     
 %--------------------Find a fundamental matrix--------------------
     if ransac == 1
-        if nargout > 1
-            [fundamentalMatrix, points1, points2] = getFundamentalMatrixWithRansac(p1List, p2List);
-        else
-            fundamentalMatrix = getFundamentalMatrixWithRansac(p1List, p2List);
-        end
-        
+        [fundamentalMatrix, mask] = getFundamentalMatrixWithRansac(p1List, p2List);
     else
-        if nargout > 1
-            [fundamentalMatrix, points1, points2] = getFundamentalMatrix(p1List, p2List);
-        else
-            fundamentalMatrix = getFundamentalMatrix(p1List, p2List);
-        end
+        fundamentalMatrix = getFundamentalMatrix(p1List, p2List);
     end
     
 %--------------------------Denormalisation--------------------------
     if normalise == 1
 %         Denormalise fundamental matrix
         fundamentalMatrix = T2' * fundamentalMatrix * T1;
+    end
+    
+%--------------------------Just for output--------------------------
+
+    if nargout > 1
+        points1 = originalPoints1(:, mask);
+        points2 = originalPoints2(:, mask);
     end
     
 end
@@ -85,12 +88,7 @@ function [pList] = normalisePoints(points, T)
     pList = pList([1,2],:);
 end
 
-function [F, p1List, p2List] = getFundamentalMatrix(p1List, p2List)
-    % Just for output
-    if nargout > 1
-        p1List = p1List;
-        p2List = p2List;
-    end
+function [F] = getFundamentalMatrix(p1List, p2List)
     
     % Create matrix A
     A = createMatrixA(p1List, p2List);
@@ -114,16 +112,16 @@ function [F, p1List, p2List] = getFundamentalMatrix(p1List, p2List)
     F = Uf * Df * Vf';
 end
 
-function [F, p1List, p2List] = getFundamentalMatrixWithRansac(p1List, p2List)
+function [F, mask] = getFundamentalMatrixWithRansac(p1List, p2List)
 
     manyTimes = 100; % TODO: change to a plausible value.
     threshold = 0.0004; % TODO: change to a plausible value.
     maxCount = 0;
-    maxMask = [];
+    maxMask = true(1, size(p1List,2));
 
     %Repeat this process "many times".
     for i = 1:manyTimes
-        % First pick 8 point correspondences randomly from the set { pi ? p'i }
+        % First pick 8 point correspondences randomly from the set { pi <-> p'i }
         [random8Points1, random8Points2] = getRandomPoints(p1List, p2List, 8);
 
         % Calculate a fundamental matrix F^.
@@ -140,13 +138,10 @@ function [F, p1List, p2List] = getFundamentalMatrixWithRansac(p1List, p2List)
     end
 
     %...-> and apply fundamental matrix estimation step to the set of all inliers.
-    % Just for output
+    F = getFundamentalMatrix(p1List(:, maxMask), p2List(:, maxMask));
     if nargout > 1
-        [F, p1List, p2List] = getFundamentalMatrix(p1List(:,find(maxMask)), p2List(:,find(maxMask)));
-    else
-        F = getFundamentalMatrix(p1List(:,find(maxMask)), p2List(:,find(maxMask)));
+        mask = maxMask;
     end
-
 end
 
 function [count, inliersMask] = getInliers(p1List, p2List, F, threshold)
