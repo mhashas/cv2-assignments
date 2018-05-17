@@ -1,4 +1,35 @@
-function [pv_matrix] = chaining(first_index, last_index, threshold)
+function [pv_matrix] = chaining(first_index, last_index, remove_background, threshold)
+% chaining - Start from any two consecutive image matches. Add a new column to
+% point-view matrix for each newly introduced point.
+% If a point which is already introduced in the point-view matrix and an-
+% other image contains that point, mark this matching on your point-view
+% matrix using the previously defined point column. Do not introduce a new
+%
+% Syntax:  pv_matrix = chaining(first_index, last_index, threshold)
+%
+% Inputs:
+%   first_index - index of first image to be used
+%   last_index  - index of last image to be used
+%   remove_background - if 1 we remove background sift
+%   threshold   - threshold that is used in vl_ubcmatch. defaults to 5
+%                   
+%
+% Outputs:
+%   pv_matrix -  2M * N  matrix, where M is the number of views and N is the 
+%                     number of 3D points. The format is:
+% 
+%                     x1(1)  x2(1)   x3(1) ... xN(1)
+%                     y1(1)  y2(1)  y3(1) ... yN(1)
+%                     ...
+%                     x1(M)  x2(M)   x3(M) ... xN(M)
+%                     y1(M)  y2(M)  y3(M) ... yN(M)
+%                     where xi(j) and yi(j) are the x- and y- projections of the ith 3D point 
+%                     in the jth camera. 
+    
+    if nargin < 3
+        threshold = 5;
+    end
+    
     for index = first_index:last_index 
          fprintf('Image: %i of %i\n', index, last_index)
             
@@ -9,7 +40,7 @@ function [pv_matrix] = chaining(first_index, last_index, threshold)
          else
             image2 = getImage(index + 1);
          end
-           
+        
         % find matching points
         [f1, ~, f2, ~, matches, ~] = getKeypointMatches(image1, image2, threshold);
         
@@ -17,11 +48,17 @@ function [pv_matrix] = chaining(first_index, last_index, threshold)
         p1List = f1([1,2], matches(1,:));
         p2List = f2([1,2], matches(2,:));
         
-        %[p1List, p2List] = selectPointsInForeground(image1, p1List, image2, p2List);
+        if remove_background
+            [p1List, p2List] = selectPointsInForeground(image1, p1List, image2, p2List);
+        end
+        
+        if size(p1List,2) < 8
+            % we don't have 8 points, no reason to do eight point
+            % algorithm. usually happens if the threshold is too big
+            %continue
+        end
         
         [F, p1, p2] = eightPointAlgorithm(p1List, p2List, 0);
-        
-        % handle outliers with F ? Should it be handled in eightPoint ? 
         
         if index == 1
             % first iteration 

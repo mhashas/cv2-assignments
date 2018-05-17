@@ -1,0 +1,39 @@
+function plot_pv_matrix(pv_matrix)
+% plot_pv_matrix - Start from any two consecutive image matches. Add a new column to
+% point-view matrix for each newly introduced point.
+% If a point which is already introduced in the point-view matrix and an-
+% other image contains that point, mark this matching on your point-view
+% matrix using the previously defined point column. Do not introduce a new
+%
+% Syntax:  pv_matrix = chaining(first_index, last_index, threshold)
+%
+% Inputs:
+%   pv_matrix -  2M * N  matrix, where M is the number of views and N is the 
+%                     number of 3D points. The format is:
+% 
+%                     x1(1)  x2(1)   x3(1) ... xN(1)
+%                     y1(1)  y2(1)  y3(1) ... yN(1)
+%                     ...
+%                     x1(M)  x2(M)   x3(M) ... xN(M)
+%                     y1(M)  y2(M)  y3(M) ... yN(M)
+%                     where xi(j) and yi(j) are the x- and y- projections of the ith 3D point
+%                   
+%
+% Outputs:
+%   pv_matrix -  2M * N  matrix, where M is the number of views and N is the 
+%                     number of 3D points. The format is:
+% 
+%                     x1(1)  x2(1)   x3(1) ... xN(1)
+%                     y1(1)  y2(1)  y3(1) ... yN(1)
+%                     ...
+%                     x1(M)  x2(M)   x3(M) ... xN(M)
+%                     y1(M)  y2(M)  y3(M) ... yN(M)
+%                     where xi(j) and yi(j) are the x- and y- projections of the ith 3D point 
+%    
+    image = getImage(1);
+    imshow(image);
+    hold all
+    for row_index = 1:2:size(pv_matrix,1)-1
+        plot(pv_matrix(row_index,:),pv_matrix(row_index+1,:),'r*')
+    end  
+end
