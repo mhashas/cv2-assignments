@@ -21,14 +21,14 @@ function showEpipolarLinesInteractiv(image1, image2, F0, F1, F2)
     figure(1);
     position_figure(1, 2, 1)
     clf
-    imshow(image1)
+    imshow(im2single(uint8(image1)))
 
     hold on
 
     figure(2);
     position_figure(1, 2, 2)
     clf
-    imshow(image2)
+    imshow(im2single(uint8(image2)))
 
     count = 1;
     data = [];

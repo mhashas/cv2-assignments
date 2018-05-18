@@ -1,4 +1,4 @@
-function showCorespondences(img1,img2, points1, points2)
+function [Fig] = showCorespondences(img1, img2, points1, points2)
 % showCorespondences - displays the two images side-by-side, with line
 % uniting the pairs of points from the two images, for a better
 % visualisation of the corespondences.
@@ -14,10 +14,9 @@ function showCorespondences(img1,img2, points1, points2)
 %                           first two rows are used.
 
     [~,w,~] = size(img1);
-    
-    
-    figure
-    imshow([img1, img2])
+
+    Fig = figure;
+    imshow([im2single(uint8(img1)), im2single(uint8(img2))]);
     hold on
     
     x1 = points1(1,:);
