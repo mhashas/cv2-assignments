@@ -47,7 +47,7 @@ To run each file, take a look at following files:
 
 - [Instructions](Assignment1/src/README.md) for Lab 1.
 - [Instructions](Assignment2/src/README.md) for Lab 2. 
-- Preparation section in [Problem statement](Assignment 3/lab3.pdf) for Lab 3.
+- Preparation section in [Problem statement](Assignment3/lab3.pdf) for Lab 3.
 
 ---
 
